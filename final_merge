@@ -1,0 +1,18 @@
+USE DATABASE COMPREHENSIVE;
+
+-- Perform FULL OUTER JOIN for all tables (merge1, merge2, merge3, merge4) on UNITID
+WITH merged_data AS (
+    SELECT 
+        merge1.UNITID AS unitid_1,
+        merge1.*,               -- All columns from merge1
+        merge2.*,               -- All columns from merge2
+        merge3.*,               -- All columns from merge3
+        merge4.*                -- All columns from merge4
+    FROM merge1
+    FULL OUTER JOIN merge2 ON merge1.UNITID = merge2.UNITID
+    FULL OUTER JOIN merge3 ON merge1.UNITID = merge3.UNITID
+    FULL OUTER JOIN merge4 ON merge1.UNITID = merge4.UNITID
+)
+
+SELECT *
+FROM merged_data;

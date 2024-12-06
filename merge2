@@ -1,0 +1,58 @@
+USE DATABASE MERGE3;
+
+-- Check the number of UNITID values in each table 
+SELECT COUNT(DISTINCT UNITID) FROM f1a_df;
+SELECT COUNT(DISTINCT UNITID) FROM f2_df;
+SELECT COUNT(DISTINCT UNITID) FROM sfav_df;
+
+-- Step 1: Remove duplicates from each table
+CREATE OR REPLACE TABLE f1a_df_clean AS
+WITH ranked_f1a AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY UNITID ORDER BY UNITID) AS rn
+    FROM f1a_df
+)
+SELECT *
+FROM ranked_f1a
+WHERE rn = 1;
+
+CREATE OR REPLACE TABLE f2_df_clean AS
+WITH ranked_f2 AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY UNITID ORDER BY UNITID) AS rn
+    FROM f2_df
+)
+SELECT *
+FROM ranked_f2
+WHERE rn = 1;
+
+
+CREATE OR REPLACE TABLE sfav_df_clean AS
+WITH ranked_sfav AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY UNITID ORDER BY UNITID) AS rn
+    FROM sfav_df
+)
+SELECT *
+FROM ranked_sfav
+WHERE rn = 1;
+
+-- Step 2: Merge the cleaned data
+WITH merged_data AS (
+    SELECT 
+        f2_df_clean.UNITID AS f2_unitid,  
+        f2_df_clean.*,                      
+        f1a_df_clean.*,                     
+        sfav_df_clean.*                    
+    FROM 
+        f2_df_clean
+    LEFT JOIN f1a_df_clean ON f2_df_clean.UNITID = f1a_df_clean.UNITID
+    LEFT JOIN sfav_df_clean ON f2_df_clean.UNITID = sfav_df_clean.UNITID
+)
+SELECT *
+FROM (
+    SELECT *,
+           ROW_NUMBER() OVER (ORDER BY RANDOM()) AS sampled_rn
+    FROM merged_data
+) AS sampled
+WHERE sampled_rn <= 5000;

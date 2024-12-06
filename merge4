@@ -1,0 +1,197 @@
+USE DATABASE MERGE5;
+
+-- Step 1: Remove duplicates from each table
+CREATE OR REPLACE TABLE OM2022_DF_clean AS
+WITH ranked_om2022 AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY UNITID ORDER BY UNITID) AS rn
+    FROM OM2022_DF
+)
+SELECT *
+FROM ranked_om2022
+WHERE rn = 1;
+
+CREATE OR REPLACE TABLE GR2022_DF_clean AS
+WITH ranked_gr2022 AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY UNITID ORDER BY UNITID) AS rn
+    FROM GR2022_DF
+)
+SELECT *
+FROM ranked_gr2022
+WHERE rn = 1;
+
+CREATE OR REPLACE TABLE IC2022_CAMPUSES_DF_clean AS
+WITH ranked_ic2022_campuses AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY UNITID ORDER BY UNITID) AS rn
+    FROM IC2022_CAMPUSES_DF
+)
+SELECT *
+FROM ranked_ic2022_campuses
+WHERE rn = 1;
+
+CREATE OR REPLACE TABLE C2022_A_DF_clean AS
+WITH ranked_c2022_a AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY UNITID ORDER BY UNITID) AS rn
+    FROM C2022_A_DF
+)
+SELECT *
+FROM ranked_c2022_a
+WHERE rn = 1;
+
+CREATE OR REPLACE TABLE C2022_C_DF_clean AS
+WITH ranked_c2022_c AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY UNITID ORDER BY UNITID) AS rn
+    FROM C2022_C_DF
+)
+SELECT *
+FROM ranked_c2022_c
+WHERE rn = 1;
+
+CREATE OR REPLACE TABLE EF2022_A_DF_clean AS
+WITH ranked_ef2022_a AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY UNITID ORDER BY UNITID) AS rn
+    FROM EF2022_A_DF
+)
+SELECT *
+FROM ranked_ef2022_a
+WHERE rn = 1;
+
+CREATE OR REPLACE TABLE EF2022_B_DF_clean AS
+WITH ranked_ef2022_b AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY UNITID ORDER BY UNITID) AS rn
+    FROM EF2022_B_DF
+)
+SELECT *
+FROM ranked_ef2022_b
+WHERE rn = 1;
+
+CREATE OR REPLACE TABLE EF2022_CP_DF_clean AS
+WITH ranked_ef2022_cp AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY UNITID ORDER BY UNITID) AS rn
+    FROM EF2022_CP_DF
+)
+SELECT *
+FROM ranked_ef2022_cp
+WHERE rn = 1;
+
+CREATE OR REPLACE TABLE EF2022_A_DIST_DF_clean AS
+WITH ranked_ef2022_a_dist AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY UNITID ORDER BY UNITID) AS rn
+    FROM EF2022_A_DIST_DF
+)
+SELECT *
+FROM ranked_ef2022_a_dist
+WHERE rn = 1;
+
+CREATE OR REPLACE TABLE EF2022_C_DF_clean AS
+WITH ranked_ef2022_c AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY UNITID ORDER BY UNITID) AS rn
+    FROM EF2022_C_DF
+)
+SELECT *
+FROM ranked_ef2022_c
+WHERE rn = 1;
+
+CREATE OR REPLACE TABLE EF2022_D_DF_clean AS
+WITH ranked_ef2022_d AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY UNITID ORDER BY UNITID) AS rn
+    FROM EF2022_D_DF
+)
+SELECT *
+FROM ranked_ef2022_d
+WHERE rn = 1;
+
+CREATE OR REPLACE TABLE EFIA2022_DF_clean AS
+WITH ranked_efia2022 AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY UNITID ORDER BY UNITID) AS rn
+    FROM EFIA2022_DF
+)
+SELECT *
+FROM ranked_efia2022
+WHERE rn = 1;
+
+CREATE OR REPLACE TABLE IC2022_AY_DF_clean AS
+WITH ranked_ic2022_ay AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY UNITID ORDER BY UNITID) AS rn
+    FROM IC2022_AY_DF
+)
+SELECT *
+FROM ranked_ic2022_ay
+WHERE rn = 1;
+
+CREATE OR REPLACE TABLE IC2022_PY_DF_clean AS
+WITH ranked_ic2022_py AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY UNITID ORDER BY UNITID) AS rn
+    FROM IC2022_PY_DF
+)
+SELECT *
+FROM ranked_ic2022_py
+WHERE rn = 1;
+
+CREATE OR REPLACE TABLE IC2022_DF_clean AS
+WITH ranked_ic2022 AS (
+    SELECT *,
+           ROW_NUMBER() OVER (PARTITION BY UNITID ORDER BY UNITID) AS rn
+    FROM IC2022_DF
+)
+SELECT *
+FROM ranked_ic2022
+WHERE rn = 1;
+
+-- Step 2: Merge the data
+WITH merged_data AS (
+    SELECT 
+        om2022.UNITID AS om_unitid,
+        om2022.*,                -- All columns from OM2022_DF
+        gr2022.*,                -- All columns from GR2022_DF
+        ic2022_campuses.*,       -- All columns from IC2022_CAMPUSES
+        c2022_a.*,               -- All columns from C2022_A_DF
+        c2022_c.*,               -- All columns from C2022_C_DF
+        ef2022_a.*,              -- All columns from EF2022_A_DF
+        ef2022_b.*,              -- All columns from EF2022_B_DF
+        ef2022_cp.*,             -- All columns from EF2022_CP_DF
+        ef2022_a_dist.*,         -- All columns from EF2022_A_DIST_DF
+        ef2022_c.*,              -- All columns from EF2022_C_DF
+        ef2022_d.*,              -- All columns from EF2022_D_DF
+        efia2022.*,              -- All columns from EFIA2022_DF
+        ic2022_ay.*,             -- All columns from IC2022_AY_DF
+        ic2022_py.*,             -- All columns from IC2022_PY_DF
+        ic2022.*                 -- All columns from IC2022_DF
+    FROM OM2022_DF_clean om2022
+    LEFT JOIN GR2022_DF_clean gr2022 ON om2022.UNITID = gr2022.UNITID
+    LEFT JOIN IC2022_CAMPUSES_DF_clean ic2022_campuses ON om2022.UNITID = ic2022_campuses.UNITID
+    LEFT JOIN C2022_A_DF_clean c2022_a ON om2022.UNITID = c2022_a.UNITID
+    LEFT JOIN C2022_C_DF_clean c2022_c ON om2022.UNITID = c2022_c.UNITID
+    LEFT JOIN EF2022_A_DF_clean ef2022_a ON om2022.UNITID = ef2022_a.UNITID
+    LEFT JOIN EF2022_B_DF_clean ef2022_b ON om2022.UNITID = ef2022_b.UNITID
+    LEFT JOIN EF2022_CP_DF_clean ef2022_cp ON om2022.UNITID = ef2022_cp.UNITID
+    LEFT JOIN EF2022_A_DIST_DF_clean ef2022_a_dist ON om2022.UNITID = ef2022_a_dist.UNITID
+    LEFT JOIN EF2022_C_DF_clean ef2022_c ON om2022.UNITID = ef2022_c.UNITID
+    LEFT JOIN EF2022_D_DF_clean ef2022_d ON om2022.UNITID = ef2022_d.UNITID
+    LEFT JOIN EFIA2022_DF_clean efia2022 ON om2022.UNITID = efia2022.UNITID
+    LEFT JOIN IC2022_AY_DF_clean ic2022_ay ON om2022.UNITID = ic2022_ay.UNITID
+    LEFT JOIN IC2022_PY_DF_clean ic2022_py ON om2022.UNITID = ic2022_py.UNITID
+    LEFT JOIN IC2022_DF_clean ic2022 ON om2022.UNITID = ic2022.UNITID
+)
+
+-- Step 3: Sample 5000 unique UNITID rows
+SELECT *
+FROM (
+    SELECT *,
+           ROW_NUMBER() OVER (ORDER BY RANDOM()) AS sampled_rn
+    FROM merged_data
+) AS sampled
+WHERE sampled_rn <= 5000;
