@@ -1,3 +1,8 @@
 ipykernel
 ipywidgets
 pandas
+jinja2
+matplotlib
+openpyxl
+scikit-learn
+seaborn
